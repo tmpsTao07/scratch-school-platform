@@ -16,3 +16,10 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`伺服器已啟動：http://localhost:${PORT}`);
 });
+
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB 已連線成功'))
+  .catch(err => console.error('❌ MongoDB 連線失敗', err));
