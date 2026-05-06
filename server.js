@@ -5,6 +5,7 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const Student = require('./models/student'); // 引用學生模型
+const Project = require('./models/project');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -82,3 +83,29 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 伺服器已啟動：http://localhost:${PORT}`);
 });
+
+// 顯示作品列表（必須登入）
+app.get('/projects', async (req, res) => {
+  if (!req.session.studentId) {
+    return res.send('請先登入');
+  }
+  const projects = await Project.find({ studentId: req.session.studentId });
+  res.render('projects', { projects });
+});
+
+// 新增作品（表單送出）
+app.post('/projects', async (req, res) => {
+  if (!req.session.studentId) {
+    return res.send('請先登入');
+  }
+  const { title, description, scratchLink } = req.body;
+  const project = new Project({
+    title,
+    description,
+    scratchLink,
+    studentId: req.session.studentId
+  });
+  await project.save();
+  res.redirect('/projects');
+});
+
